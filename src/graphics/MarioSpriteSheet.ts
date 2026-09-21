@@ -16,20 +16,22 @@ interface SpriteSpec {
 const BASE_URL = (((import.meta as any).env?.BASE_URL as string) || '/').replace(/\/$/, '') + '/';
 
 const MARIO_SPECS: Record<string, SpriteSpec> = {
-  // 작은 마리오 (손을 내린 모습: idle/walk, 손을 올리고 달리는 모습: jump/run/die)
-  mario_idle: { url: `${BASE_URL}sprites/mario/mario_idle.png`, width: 15, height: 22 },
-  mario_walk1: { url: `${BASE_URL}sprites/mario/mario_idle.png`, width: 15, height: 22 },
-  mario_walk2: { url: `${BASE_URL}sprites/mario/mario_idle.png`, width: 15, height: 22 },
-  mario_jump: { url: `${BASE_URL}sprites/mario/mario_run.png`, width: 17, height: 22 },
-  mario_run: { url: `${BASE_URL}sprites/mario/mario_run.png`, width: 17, height: 22 },
-  mario_die: { url: `${BASE_URL}sprites/mario/mario_run.png`, width: 17, height: 22 },
+  // 작은 마리오 (첨부 이미지의 깔끔한 단일 포즈: 너비 17, 높이 22)
+  mario_small: { url: `${BASE_URL}sprites/mario/mario_small_custom.png`, width: 17, height: 22 },
+  mario_idle: { url: `${BASE_URL}sprites/mario/mario_small_custom.png`, width: 17, height: 22 },
+  mario_walk1: { url: `${BASE_URL}sprites/mario/mario_small_custom.png`, width: 17, height: 22 },
+  mario_walk2: { url: `${BASE_URL}sprites/mario/mario_small_custom.png`, width: 17, height: 22 },
+  mario_jump: { url: `${BASE_URL}sprites/mario/mario_small_custom.png`, width: 17, height: 22 },
+  mario_run: { url: `${BASE_URL}sprites/mario/mario_small_custom.png`, width: 17, height: 22 },
+  mario_die: { url: `${BASE_URL}sprites/mario/mario_small_custom.png`, width: 17, height: 22 },
 
-  // 큰 마리오 (손을 내린 모습: idle/walk, 손을 올리고 달리는 모습: jump/run)
-  mario_big_idle: { url: `${BASE_URL}sprites/mario/mario_big_idle.png`, width: 20, height: 36 },
-  mario_big_walk1: { url: `${BASE_URL}sprites/mario/mario_big_idle.png`, width: 20, height: 36 },
-  mario_big_walk2: { url: `${BASE_URL}sprites/mario/mario_big_idle.png`, width: 20, height: 36 },
-  mario_big_jump: { url: `${BASE_URL}sprites/mario/mario_big_run.png`, width: 28, height: 36 },
-  mario_big_run: { url: `${BASE_URL}sprites/mario/mario_big_run.png`, width: 28, height: 36 },
+  // 큰 마리오 (버섯 획득 시: 너비 28, 높이 36)
+  mario_big: { url: `${BASE_URL}sprites/mario/mario_big_custom.png`, width: 28, height: 36 },
+  mario_big_idle: { url: `${BASE_URL}sprites/mario/mario_big_custom.png`, width: 28, height: 36 },
+  mario_big_walk1: { url: `${BASE_URL}sprites/mario/mario_big_custom.png`, width: 28, height: 36 },
+  mario_big_walk2: { url: `${BASE_URL}sprites/mario/mario_big_custom.png`, width: 28, height: 36 },
+  mario_big_jump: { url: `${BASE_URL}sprites/mario/mario_big_custom.png`, width: 28, height: 36 },
+  mario_big_run: { url: `${BASE_URL}sprites/mario/mario_big_custom.png`, width: 28, height: 36 },
 };
 
 class MarioSpriteManager {
