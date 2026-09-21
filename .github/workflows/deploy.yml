@@ -5,7 +5,7 @@ on:
     branches: [ main ]
 
 permissions:
-  contents: write
+  contents: read
   pages: write
   id-token: write
 
@@ -29,35 +29,16 @@ jobs:
           node-version: 20
 
       - name: Install dependencies
-        run: npm install --include=dev
+        run: |
+          npm install --include=dev
+          chmod -R +x node_modules/.bin || true
         env:
           NODE_ENV: development
 
       - name: Build
-        id: build_step
-        continue-on-error: true
-        run: |
-          set -o pipefail
-          npx tsc 2>&1 | tee tsc.log
-          npx vite build 2>&1 | tee vite.log
+        run: npm run build
         env:
           NODE_ENV: production
-
-      - name: Report Failure Log
-        if: steps.build_step.outcome != 'success'
-        run: |
-          git config user.name "github-actions"
-          git config user.email "actions@github.com"
-          git checkout -B debug-log
-          echo "=== TSC LOG ===" > ci_failure.txt
-          cat tsc.log >> ci_failure.txt 2>/dev/null || true
-          echo "" >> ci_failure.txt
-          echo "=== VITE LOG ===" >> ci_failure.txt
-          cat vite.log >> ci_failure.txt 2>/dev/null || true
-          git add -f ci_failure.txt
-          git commit -m "ci build failure log [skip ci]"
-          git push -f origin debug-log
-          exit 1
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
