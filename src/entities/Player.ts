@@ -120,7 +120,7 @@ export class Player extends Entity {
     }
 
     // 점프 버퍼링 타이머 갱신 (점프 키를 누르면 10프레임 동안 유지)
-    if (input.isJustPressed('jump')) {
+    if (input.isJustPressed('jump') || input.isJustPressed('up')) {
       this.jumpBufferTimer = 10;
     } else if (this.jumpBufferTimer > 0) {
       this.jumpBufferTimer--;
@@ -165,7 +165,7 @@ export class Player extends Entity {
     }
 
     // ─── 점프 키 상태 추적 (가변 점프용) ────
-    this.jumpHeld = input.isHeld('jump');
+    this.jumpHeld = input.isHeld('jump') || input.isHeld('up');
 
     // ─── 점프 시작 판정 (버퍼링 + 코요테 타임 통합) ───
     const canJump = (this.onGround || this.coyoteTimer > 0) && this.vel.y >= 0;

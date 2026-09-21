@@ -103,6 +103,10 @@ export class Game {
   private touchButtons: Map<string, boolean> = new Map();
   private isMobile: boolean = false;
 
+  // 생명 및 게임 오버 메뉴 선택 상태
+  public lives: number = 3;
+  public selectedGameOverOption: number = 0; // 0: 이어서 하기, 1: 처음부터 다시 하기
+
   constructor(canvas: HTMLCanvasElement) {
     this.canvas = canvas;
     const ctx = canvas.getContext('2d');
@@ -125,6 +129,27 @@ export class Game {
     if (this.isMobile) {
       this.setupTouchControls();
     }
+
+    // 게임 오버 화면 마우스 클릭 선택 지원
+    this.canvas.addEventListener('click', (e) => {
+      if (this.hud.gamePhase !== GamePhase.GAME_OVER) return;
+      const rect = this.canvas.getBoundingClientRect();
+      const scaleX = GAME_WIDTH / rect.width;
+      const scaleY = GAME_HEIGHT / rect.height;
+      const clickX = (e.clientX - rect.left) * scaleX;
+      const clickY = (e.clientY - rect.top) * scaleY;
+
+      // 옵션 1 (이어서 하기): x: 26 ~ 230, y: 106 ~ 138
+      if (clickX >= 26 && clickX <= 230 && clickY >= 106 && clickY <= 138) {
+        this.selectedGameOverOption = 0;
+        this.confirmGameOverChoice();
+      }
+      // 옵션 2 (처음부터 다시 하기): x: 26 ~ 230, y: 146 ~ 178
+      else if (clickX >= 26 && clickX <= 230 && clickY >= 146 && clickY <= 178) {
+        this.selectedGameOverOption = 1;
+        this.confirmGameOverChoice();
+      }
+    });
 
     this.resizeCanvas();
     window.addEventListener('resize', () => this.resizeCanvas());
@@ -290,12 +315,44 @@ export class Game {
     requestAnimationFrame((t) => this.loop(t));
   }
 
+  /** 플레이어 사망 통합 처리 (생명 차감 및 리스폰/게임오버 판정) */
+  private handlePlayerDeath(): void {
+    if (this.player.state === PlayerState.DEAD) return;
+    this.player.die();
+    this.sound.playDie();
+    this.lives--;
+    const isGameOver = this.lives <= 0;
+    this.hud.startDying(isGameOver);
+  }
+
+  /** 게임 오버 선택지 확정 (이어서 하기 vs 처음부터 다시 하기) */
+  private confirmGameOverChoice(): void {
+    this.sound.playCoin();
+    this.lives = 3; // 생명 3개 충전
+    if (this.selectedGameOverOption === 0) {
+      // 1. 이어서 하기: 현재 도달한 라운드에서 점수/코인 유지한 채 재도전
+      this.loadLevel(this.currentLevelIndex, true);
+    } else {
+      // 2. 처음부터 다시 하기: World 1-1부터 점수 0으로 새로 시작
+      this.loadLevel(0, false);
+    }
+  }
+
   /** Fixed Timestep 업데이트 */
   private update(): void {
-    // ─── GAME OVER 상태 재시작 ──────────
+    // ─── GAME OVER 상태 (이어서 하기 / 처음부터 다시 하기) ───
     if (this.hud.gamePhase === GamePhase.GAME_OVER) {
-      if (this.input.isJustPressed('jump')) {
-        this.loadLevel(0, false); // 1-1부터 새로 시작
+      if (this.input.isJustPressed('up') || this.input.isJustPressed('down')) {
+        this.selectedGameOverOption = this.selectedGameOverOption === 0 ? 1 : 0;
+        this.sound.playJump();
+      } else if (this.input.isJustPressed('option1')) {
+        this.selectedGameOverOption = 0;
+        this.confirmGameOverChoice();
+      } else if (this.input.isJustPressed('option2')) {
+        this.selectedGameOverOption = 1;
+        this.confirmGameOverChoice();
+      } else if (this.input.isJustPressed('jump') || this.input.isJustPressed('confirm')) {
+        this.confirmGameOverChoice();
       }
       this.input.endFrame();
       return;
@@ -311,7 +368,10 @@ export class Game {
     // ─── DYING 상태 ─────────────────────
     if (this.hud.gamePhase === GamePhase.DYING) {
       this.player.updateWithInput(this.input, this.tilemap.data, this.tilemap.cols, this.tilemap.rows);
-      this.hud.updateDying();
+      const outcome = this.hud.updateDying();
+      if (outcome === 'respawn') {
+        this.loadLevel(this.currentLevelIndex, true);
+      }
       this.input.endFrame();
       return;
     }
@@ -319,9 +379,7 @@ export class Game {
     // ─── HUD 타이머 ─────────────────────
     this.hud.updateTime();
     if (this.hud.time <= 0 && this.player.state !== PlayerState.DEAD) {
-      this.player.die();
-      this.sound.playDie();
-      this.hud.startDying();
+      this.handlePlayerDeath();
     }
 
     // ─── Player 물리 업데이트 ─────────────
@@ -463,8 +521,7 @@ export class Game {
           // 피격 처리: 큰 마리오면 축소 및 생존, 작은 마리오면 사망
           const killed = this.player.takeDamage();
           if (killed) {
-            this.sound.playDie();
-            this.hud.startDying();
+            this.handlePlayerDeath();
           } else {
             // 생존 시 효과음 및 파티클
             this.sound.playJump();
@@ -503,12 +560,10 @@ export class Game {
       this.player.vel.x = Math.max(0, this.player.vel.x);
     }
 
-    // 구멍에 빠짐 (화면 바닥을 벗어나면 즉시 게임오버)
+    // 구멍에 빠짐 (생명 1개 차감)
     if (this.player.pos.y > this.tilemap.rows * TILE_SIZE) {
       if (this.player.state !== PlayerState.DEAD) {
-        this.player.die();
-        this.sound.playDie();
-        this.hud.triggerGameOverImmediately();
+        this.handlePlayerDeath();
       }
     }
 
@@ -679,8 +734,8 @@ export class Game {
       ctx.fillText(popup.text, sx, popup.y);
     }
 
-    // HUD (상단 점수/코인/월드/타임)
-    this.hud.render(ctx, this.player.score, this.player.coins, GAME_WIDTH, GAME_HEIGHT);
+    // HUD (상단 점수/코인/생명/월드/타임)
+    this.hud.render(ctx, this.player.score, this.player.coins, this.lives, GAME_WIDTH, GAME_HEIGHT, this.selectedGameOverOption);
 
     // 모바일 터치 컨트롤
     if (this.isMobile) {

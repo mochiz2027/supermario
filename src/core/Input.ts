@@ -3,23 +3,29 @@
  * 현재 프레임에서 키의 눌림 상태와, 이번 프레임에 새로 눌린(justPressed) 상태를 추적합니다.
  */
 
-export type GameKey = 'left' | 'right' | 'up' | 'down' | 'jump' | 'run';
+export type GameKey = 'left' | 'right' | 'up' | 'down' | 'jump' | 'run' | 'confirm' | 'option1' | 'option2';
 
 const KEY_MAP: Record<string, GameKey> = {
   ArrowLeft: 'left',
   ArrowRight: 'right',
-  ArrowUp: 'jump',      // ↑ 키로도 점프 가능
+  ArrowUp: 'up',
   ArrowDown: 'down',
   KeyA: 'left',
   KeyD: 'right',
-  KeyW: 'jump',         // W 키로도 점프 가능
+  KeyW: 'up',
   KeyS: 'down',
-  Space: 'jump',        // 스페이스바
-  KeyX: 'jump',         // X 키 (클래식 게임 패드 A버튼 호환)
+  Space: 'jump',
+  Enter: 'confirm',
+  NumpadEnter: 'confirm',
+  Digit1: 'option1',
+  Numpad1: 'option1',
+  Digit2: 'option2',
+  Numpad2: 'option2',
+  KeyX: 'jump',
   KeyC: 'jump',
   ShiftLeft: 'run',
   ShiftRight: 'run',
-  KeyZ: 'run',          // Z 키 (클래식 게임 패드 B버튼 호환)
+  KeyZ: 'run',
   KeyJ: 'run',
   KeyK: 'jump',
 };
@@ -35,7 +41,11 @@ export class Input {
       let mapped = KEY_MAP[e.code];
       if (!mapped) {
         if (e.key === ' ' || e.key === 'Spacebar') mapped = 'jump';
-        else if (e.key === 'ArrowUp' || e.key === 'w' || e.key === 'W') mapped = 'jump';
+        else if (e.key === 'Enter') mapped = 'confirm';
+        else if (e.key === '1') mapped = 'option1';
+        else if (e.key === '2') mapped = 'option2';
+        else if (e.key === 'ArrowUp' || e.key === 'w' || e.key === 'W') mapped = 'up';
+        else if (e.key === 'ArrowDown' || e.key === 's' || e.key === 'S') mapped = 'down';
         else if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') mapped = 'left';
         else if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') mapped = 'right';
       }
@@ -53,7 +63,11 @@ export class Input {
       let mapped = KEY_MAP[e.code];
       if (!mapped) {
         if (e.key === ' ' || e.key === 'Spacebar') mapped = 'jump';
-        else if (e.key === 'ArrowUp' || e.key === 'w' || e.key === 'W') mapped = 'jump';
+        else if (e.key === 'Enter') mapped = 'confirm';
+        else if (e.key === '1') mapped = 'option1';
+        else if (e.key === '2') mapped = 'option2';
+        else if (e.key === 'ArrowUp' || e.key === 'w' || e.key === 'W') mapped = 'up';
+        else if (e.key === 'ArrowDown' || e.key === 's' || e.key === 'S') mapped = 'down';
         else if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') mapped = 'left';
         else if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') mapped = 'right';
       }
