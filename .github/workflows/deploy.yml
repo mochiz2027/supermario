@@ -29,10 +29,16 @@ jobs:
           node-version: 20
 
       - name: Install dependencies
-        run: npm install
+        run: npm install --include=dev
+        env:
+          NODE_ENV: development
 
       - name: Build
-        run: npm run build
+        run: |
+          npx tsc
+          npx vite build
+        env:
+          NODE_ENV: production
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
