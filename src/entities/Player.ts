@@ -61,7 +61,9 @@ export class Player extends Entity {
   public isBig: boolean = false;
   public invulnerableTimer: number = 0;
   private transformTimer: number = 0;
-
+  // 걷기/달리기 애니메이션 프레임
+  private animTimer: number = 0;
+  private animFrame: number = 0;
 
   // 사망 애니메이션
   private deadTimer: number = 0;
@@ -199,10 +201,20 @@ export class Player extends Entity {
     // ─── 상태 업데이트 ──────────────────────
     if (!this.onGround) {
       this.state = this.vel.y < 0 ? PlayerState.JUMPING : PlayerState.FALLING;
+      this.animTimer = 0;
+      this.animFrame = 0;
     } else if (Math.abs(this.vel.x) > 0.1) {
       this.state = Math.abs(this.vel.x) > MAX_SPEED_WALK ? PlayerState.RUNNING : PlayerState.WALKING;
+      this.animTimer += Math.abs(this.vel.x);
+      const stepInterval = Math.abs(this.vel.x) > MAX_SPEED_WALK ? 10 : 14;
+      if (this.animTimer >= stepInterval) {
+        this.animTimer = 0;
+        this.animFrame = (this.animFrame + 1) % 2;
+      }
     } else {
       this.state = PlayerState.IDLE;
+      this.animTimer = 0;
+      this.animFrame = 0;
     }
 
     return result;
@@ -257,10 +269,18 @@ export class Player extends Entity {
     const showSmallDuringTransform = isTransforming && Math.floor(this.transformTimer / 4) % 2 === 0;
     const currentBig = this.isBig && !showSmallDuringTransform;
 
-    // 모든 상태에서 정지(idle) 이미지 하나만 사용 — 잔상/떨림 완전 제거
+    // 상태와 움직임에 따른 역동적인 포즈 매핑
     let spriteName: string;
     if (this.state === PlayerState.DEAD) {
       spriteName = 'mario_die';
+    } else if (!this.onGround) {
+      spriteName = currentBig ? 'mario_big_jump' : 'mario_jump';
+    } else if (this.state === PlayerState.WALKING || this.state === PlayerState.RUNNING) {
+      if (currentBig) {
+        spriteName = this.animFrame === 0 ? 'mario_big_walk1' : 'mario_big_walk2';
+      } else {
+        spriteName = this.animFrame === 0 ? 'mario_walk1' : 'mario_walk2';
+      }
     } else {
       spriteName = currentBig ? 'mario_big_idle' : 'mario_idle';
     }
