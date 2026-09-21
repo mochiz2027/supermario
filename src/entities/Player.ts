@@ -277,10 +277,10 @@ export class Player extends Entity {
       spriteName = 'mario_die';
     } else if (!this.onGround) {
       // 점프 또는 공중 체공: 손을 올린 모습
-      spriteName = currentBig ? 'mario_big_run' : 'mario_run';
+      spriteName = currentBig ? 'mario_big_jump' : 'mario_jump';
     } else if (this.state === PlayerState.RUNNING) {
       // 달리기(대시): 손을 올리고 달리는 모습
-      spriteName = currentBig ? 'mario_big_run' : 'mario_run';
+      spriteName = currentBig ? 'mario_big_jump' : 'mario_jump';
     } else {
       // 정지 및 일반 걷기: 손을 내린 안정된 모습
       spriteName = currentBig ? 'mario_big_idle' : 'mario_idle';

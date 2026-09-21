@@ -16,20 +16,20 @@ interface SpriteSpec {
 const BASE_URL = (((import.meta as any).env?.BASE_URL as string) || '/').replace(/\/$/, '') + '/';
 
 const MARIO_SPECS: Record<string, SpriteSpec> = {
-  // 작은 마리오 (손을 내린 모습: idle/walk, 손을 올리고 달리는 모습: run/jump)
+  // 작은 마리오 (손을 내린 모습: idle/walk, 손을 올리고 달리는 모습: jump/run/die)
   mario_idle: { url: `${BASE_URL}sprites/mario/mario_idle.png`, width: 15, height: 22 },
   mario_walk1: { url: `${BASE_URL}sprites/mario/mario_idle.png`, width: 15, height: 22 },
   mario_walk2: { url: `${BASE_URL}sprites/mario/mario_idle.png`, width: 15, height: 22 },
-  mario_run: { url: `${BASE_URL}sprites/mario/mario_run.png`, width: 17, height: 22 },
   mario_jump: { url: `${BASE_URL}sprites/mario/mario_run.png`, width: 17, height: 22 },
+  mario_run: { url: `${BASE_URL}sprites/mario/mario_run.png`, width: 17, height: 22 },
   mario_die: { url: `${BASE_URL}sprites/mario/mario_run.png`, width: 17, height: 22 },
 
-  // 큰 마리오 (손을 내린 모습: idle/walk, 손을 올리고 달리는 모습: run/jump)
+  // 큰 마리오 (손을 내린 모습: idle/walk, 손을 올리고 달리는 모습: jump/run)
   mario_big_idle: { url: `${BASE_URL}sprites/mario/mario_big_idle.png`, width: 20, height: 36 },
   mario_big_walk1: { url: `${BASE_URL}sprites/mario/mario_big_idle.png`, width: 20, height: 36 },
   mario_big_walk2: { url: `${BASE_URL}sprites/mario/mario_big_idle.png`, width: 20, height: 36 },
-  mario_big_run: { url: `${BASE_URL}sprites/mario/mario_big_run.png`, width: 28, height: 36 },
   mario_big_jump: { url: `${BASE_URL}sprites/mario/mario_big_run.png`, width: 28, height: 36 },
+  mario_big_run: { url: `${BASE_URL}sprites/mario/mario_big_run.png`, width: 28, height: 36 },
 };
 
 class MarioSpriteManager {
@@ -71,11 +71,17 @@ class MarioSpriteManager {
   ): void {
     const spec = MARIO_SPECS[name];
     const img = this.images.get(name);
-    const isReady = this.loaded.get(name) && img && img.complete && img.naturalWidth > 0;
+    // 이미지가 캐시되어 이미 완전 로드되었거나 onload 콜백이 완료된 경우 모두 즉시 준비 상태로 인정
+    const isReady = (this.loaded.get(name) || (img && img.complete && img.naturalWidth > 0)) && img && img.naturalWidth > 0;
 
-    // 이미지가 로드되지 않았을 때는 임시 프로시저럴 스프라이트 출력
+    // 이미지가 준비되지 않았을 때는 안전한 프로시저럴 대체 스프라이트 출력
     if (!spec || !isReady || !img) {
-      drawProceduralSprite(ctx, name, Math.floor(playerX) - 1, Math.floor(playerY), flipX);
+      try {
+        const fallback = name.startsWith('mario_big') ? 'mario_big_idle' : 'mario_idle';
+        drawProceduralSprite(ctx, fallback, Math.floor(playerX) - 1, Math.floor(playerY), flipX);
+      } catch (e) {
+        // 렌더링 루프 중단 방지
+      }
       return;
     }
 

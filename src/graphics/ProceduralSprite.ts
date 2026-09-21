@@ -709,10 +709,8 @@ export function getSprite(name: string): OffscreenCanvas {
   let cached = spriteCache.get(name);
   if (cached) return cached;
 
-  const data = SPRITES[name];
-  if (!data) {
-    throw new Error(`Unknown sprite: ${name}`);
-  }
+  const data: SpriteData = SPRITES[name] || 
+    (name.startsWith('mario_big') ? (SPRITES['mario_big_idle'] || SPRITES['mario_idle']!) : SPRITES['mario_idle']!);
 
   cached = renderToCache(name, data);
   spriteCache.set(name, cached);
