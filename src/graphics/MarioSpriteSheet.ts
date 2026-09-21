@@ -16,18 +16,20 @@ interface SpriteSpec {
 const BASE_URL = (((import.meta as any).env?.BASE_URL as string) || '/').replace(/\/$/, '') + '/';
 
 const MARIO_SPECS: Record<string, SpriteSpec> = {
-  // 작은 마리오 (너비 / 높이 비율 및 지면 안착)
-  mario_idle: { url: `${BASE_URL}sprites/mario/mario_idle.png`, width: 15, height: 21 },
-  mario_walk1: { url: `${BASE_URL}sprites/mario/mario_walk1.png`, width: 15, height: 22 },
-  mario_walk2: { url: `${BASE_URL}sprites/mario/mario_walk2.png`, width: 16, height: 21 },
-  mario_jump: { url: `${BASE_URL}sprites/mario/mario_jump.png`, width: 17, height: 22 },
-  mario_die: { url: `${BASE_URL}sprites/mario/mario_die.png`, width: 17, height: 22 },
+  // 작은 마리오 (손을 내린 모습: idle/walk, 손을 올리고 달리는 모습: run/jump)
+  mario_idle: { url: `${BASE_URL}sprites/mario/mario_idle.png`, width: 15, height: 22 },
+  mario_walk1: { url: `${BASE_URL}sprites/mario/mario_idle.png`, width: 15, height: 22 },
+  mario_walk2: { url: `${BASE_URL}sprites/mario/mario_idle.png`, width: 15, height: 22 },
+  mario_run: { url: `${BASE_URL}sprites/mario/mario_run.png`, width: 17, height: 22 },
+  mario_jump: { url: `${BASE_URL}sprites/mario/mario_run.png`, width: 17, height: 22 },
+  mario_die: { url: `${BASE_URL}sprites/mario/mario_run.png`, width: 17, height: 22 },
 
-  // 큰 마리오 (너비 / 높이 비율 및 지면 안착)
+  // 큰 마리오 (손을 내린 모습: idle/walk, 손을 올리고 달리는 모습: run/jump)
   mario_big_idle: { url: `${BASE_URL}sprites/mario/mario_big_idle.png`, width: 20, height: 36 },
-  mario_big_walk1: { url: `${BASE_URL}sprites/mario/mario_big_walk1.png`, width: 23, height: 35 },
-  mario_big_walk2: { url: `${BASE_URL}sprites/mario/mario_big_walk2.png`, width: 26, height: 35 },
-  mario_big_jump: { url: `${BASE_URL}sprites/mario/mario_big_jump.png`, width: 25, height: 35 },
+  mario_big_walk1: { url: `${BASE_URL}sprites/mario/mario_big_idle.png`, width: 20, height: 36 },
+  mario_big_walk2: { url: `${BASE_URL}sprites/mario/mario_big_idle.png`, width: 20, height: 36 },
+  mario_big_run: { url: `${BASE_URL}sprites/mario/mario_big_run.png`, width: 28, height: 36 },
+  mario_big_jump: { url: `${BASE_URL}sprites/mario/mario_big_run.png`, width: 28, height: 36 },
 };
 
 class MarioSpriteManager {

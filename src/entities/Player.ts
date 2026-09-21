@@ -269,19 +269,20 @@ export class Player extends Entity {
     const showSmallDuringTransform = isTransforming && Math.floor(this.transformTimer / 4) % 2 === 0;
     const currentBig = this.isBig && !showSmallDuringTransform;
 
-    // 상태와 움직임에 따른 역동적인 포즈 매핑
+    // 상태와 상황에 따른 포즈 매핑:
+    // - 정지 및 일반 걷기: 손을 내린 안정된 모습 (달달거리며 떠는 현상 완전 제거)
+    // - 빠른 달리기 및 점프/체공: 손을 올리고 달리는 역동적인 모습
     let spriteName: string;
     if (this.state === PlayerState.DEAD) {
       spriteName = 'mario_die';
     } else if (!this.onGround) {
-      spriteName = currentBig ? 'mario_big_jump' : 'mario_jump';
-    } else if (this.state === PlayerState.WALKING || this.state === PlayerState.RUNNING) {
-      if (currentBig) {
-        spriteName = this.animFrame === 0 ? 'mario_big_walk1' : 'mario_big_walk2';
-      } else {
-        spriteName = this.animFrame === 0 ? 'mario_walk1' : 'mario_walk2';
-      }
+      // 점프 또는 공중 체공: 손을 올린 모습
+      spriteName = currentBig ? 'mario_big_run' : 'mario_run';
+    } else if (this.state === PlayerState.RUNNING) {
+      // 달리기(대시): 손을 올리고 달리는 모습
+      spriteName = currentBig ? 'mario_big_run' : 'mario_run';
     } else {
+      // 정지 및 일반 걷기: 손을 내린 안정된 모습
       spriteName = currentBig ? 'mario_big_idle' : 'mario_idle';
     }
 
