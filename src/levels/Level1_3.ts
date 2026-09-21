@@ -1,7 +1,7 @@
 /**
  * Level1_3 — 슈퍼마리오 1-3 고공 플랫폼 애슬레틱 스테이지
  * - 하늘 높이 솟은 플랫폼과 낭떠러지 징검다리 점프 액션
- * - 정밀한 점프 컨트롤과 공중 코인 수집
+ * - 중간 디딤돌 계단을 보강하여 쾌적하고 자연스러운 점프 동선 제공
  */
 
 import { TileType } from '../physics/Collision';
@@ -28,11 +28,17 @@ export function getLevel1_3(): LevelConfig {
     map[14]![c] = G;
   }
 
-  // 구간 1: 첫 번째 공중 발판들 (row 10, 8, 6)
+  // 구간 1: 첫 번째 공중 발판들 (row 10)
   for (let c = 15; c <= 20; c++) {
     map[10]![c] = B;
   }
   map[10]![17] = Q;
+
+  // 낭떠러지 1 앞 연결 계단 (col 24~27) — 밟고 자연스럽게 올라갈 수 있는 계단 구조물
+  map[12]![24] = B;
+  map[12]![25] = B; map[11]![25] = B;
+  map[12]![26] = B; map[11]![26] = B;
+  map[11]![27] = B; map[10]![27] = B;
 
   // 낭떠러지 1: 공중 나무 발판 (col 28~33, row 10)
   for (let c = 28; c <= 33; c++) {
@@ -40,11 +46,17 @@ export function getLevel1_3(): LevelConfig {
   }
   map[10]![30] = Q;
 
+  // 발판 1과 발판 2 사이 디딤돌 (col 35, row 9)
+  map[9]![35] = B;
+
   // 공중 발판 2 (col 37~42, row 8)
   for (let c = 37; c <= 42; c++) {
     map[8]![c] = B;
   }
   map[8]![39] = Q;
+
+  // 발판 2에서 중간 섬 착지용 디딤돌 (col 44, row 10)
+  map[10]![44] = B;
 
   // 중간 섬 (col 46~60, 지면)
   for (let c = 46; c <= 60; c++) {
@@ -53,11 +65,20 @@ export function getLevel1_3(): LevelConfig {
   }
   map[10]![50] = B; map[10]![51] = Q; map[10]![52] = B;
 
+  // 중간 섬에서 징검다리 2 진입 디딤돌 (col 62, row 12)
+  map[12]![62] = B;
+
   // 낭떠러지 2: 연속 징검다리 (col 64, 69, 74, 79)
   for (let c = 64; c <= 67; c++) map[11]![c] = B;
+  // 징검다리 사이 연결 디딤돌 (col 68, row 10)
+  map[10]![68] = B;
   for (let c = 70; c <= 73; c++) map[9]![c] = B;
   map[9]![71] = Q;
+  // 디딤돌 (col 74, row 8)
+  map[8]![74] = B;
   for (let c = 76; c <= 79; c++) map[7]![c] = B;
+  // 디딤돌 (col 81, row 7)
+  map[7]![81] = B;
 
   // 높은 구름 다리 (col 83~95, row 6)
   for (let c = 83; c <= 95; c++) {
@@ -75,8 +96,10 @@ export function getLevel1_3(): LevelConfig {
 
   // 낭떠러지 3: 하강 계단형 공중 다리 (col 120~145)
   for (let c = 120; c <= 124; c++) map[8]![c] = B;
+  map[9]![126] = B;
   for (let c = 128; c <= 132; c++) map[9]![c] = B;
   map[9]![130] = Q;
+  map[10]![134] = B;
   for (let c = 136; c <= 140; c++) map[10]![c] = B;
 
   // 최종 착지 지상 대지 (col 146~195)

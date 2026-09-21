@@ -193,11 +193,6 @@ export class Player extends Entity {
     const result = moveAndCollide(this, tilemap, mapWidth, mapHeight);
     this.onGround = result.onGround;
 
-    // 구멍에 빠짐 (맵 하단 초과)
-    if (this.pos.y > mapHeight * 16) {
-      this.die();
-    }
-
     // ─── 상태 업데이트 ──────────────────────
     if (!this.onGround) {
       this.state = this.vel.y < 0 ? PlayerState.JUMPING : PlayerState.FALLING;

@@ -106,6 +106,7 @@ export class Game {
   // 생명 및 게임 오버 메뉴 선택 상태
   public lives: number = 3;
   public selectedGameOverOption: number = 0; // 0: 이어서 하기, 1: 처음부터 다시 하기
+  private gameOverCooldown: number = 0; // 게임 오버 진입 시 키 연타로 인한 오작동 방지 쿨다운
 
   constructor(canvas: HTMLCanvasElement) {
     this.canvas = canvas;
@@ -317,12 +318,16 @@ export class Game {
 
   /** 플레이어 사망 통합 처리 (생명 차감 및 리스폰/게임오버 판정) */
   private handlePlayerDeath(): void {
-    if (this.player.state === PlayerState.DEAD) return;
+    if (this.hud.gamePhase === GamePhase.DYING || this.hud.gamePhase === GamePhase.GAME_OVER) return;
     this.player.die();
     this.sound.playDie();
     this.lives--;
     const isGameOver = this.lives <= 0;
     this.hud.startDying(isGameOver);
+    if (isGameOver) {
+      this.gameOverCooldown = 40; // 40프레임 동안 입력 차단 (오입력 방지)
+      this.selectedGameOverOption = 0; // 항상 '이어서 하기' 기본 선택
+    }
   }
 
   /** 게임 오버 선택지 확정 (이어서 하기 vs 처음부터 다시 하기) */
@@ -342,6 +347,12 @@ export class Game {
   private update(): void {
     // ─── GAME OVER 상태 (이어서 하기 / 처음부터 다시 하기) ───
     if (this.hud.gamePhase === GamePhase.GAME_OVER) {
+      if (this.gameOverCooldown > 0) {
+        this.gameOverCooldown--;
+        this.input.endFrame();
+        return;
+      }
+
       if (this.input.isJustPressed('up') || this.input.isJustPressed('down')) {
         this.selectedGameOverOption = this.selectedGameOverOption === 0 ? 1 : 0;
         this.sound.playJump();
@@ -562,9 +573,7 @@ export class Game {
 
     // 구멍에 빠짐 (생명 1개 차감)
     if (this.player.pos.y > this.tilemap.rows * TILE_SIZE) {
-      if (this.player.state !== PlayerState.DEAD) {
-        this.handlePlayerDeath();
-      }
+      this.handlePlayerDeath();
     }
 
     this.input.endFrame();
